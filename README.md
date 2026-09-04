@@ -1,91 +1,176 @@
-# Bookstore Backend
+# Book Store Capstone
 
-A simple REST API backend for an E-Commerce Book Store, built with Node.js, Express, PostgreSQL, and Prisma.
+A full-stack bookstore platform built with a Node.js + Express backend and a Next.js storefront. The solution includes user authentication, product catalog browsing, wishlist and cart management, order creation, and a simulated payment flow.
 
----
+This project is structured as a monorepo-like workspace with two main application layers:
 
-## Project Overview
+- `playground/` — backend API and database layer
+- `frontend/bookstore/` — customer-facing web application
 
-This backend powers a bookstore e-commerce platform. Users can browse books on the public home page, register and log in to access the catalogue, manage a wishlist and cart, place orders, and complete a simulated (fake) payment.
+## Architecture Overview
 
----
+```mermaid
+flowchart LR
+    User[Customer] --> UI[Next.js Frontend]
+    UI --> API[Express REST API]
+    API --> DB[(PostgreSQL)]
+    API --> JWT[JWT Authentication]
+    UI --> Storage[Local Storage + Cookies]
+```
 
-## Technology Stack
+## Core Features
 
-| Technology   | Purpose                          |
-|--------------|----------------------------------|
-| Node.js      | JavaScript runtime               |
-| Express.js   | HTTP server and routing          |
-| PostgreSQL    | Relational database              |
-| Prisma ORM   | Database access and migrations   |
-| JWT          | Access and refresh token auth    |
-| Zod          | Request validation               |
-| bcryptjs     | Password hashing                 |
-| Jest         | Test runner                      |
-| Supertest    | HTTP integration testing         |
+- User registration and login
+- JWT-based authentication with refresh token rotation
+- Product catalogue with search and category filtering
+- Wishlist management
+- Cart creation and quantity updates
+- Order creation from the cart
+- Payment simulation and order confirmation
+- Responsive storefront UI
+- Prisma ORM for database access and migrations
+- Automated API testing with Jest and Supertest
 
----
+## Tech Stack
+
+### Backend
+
+- Node.js 18+
+- Express.js
+- PostgreSQL
+- Prisma ORM
+- JWT
+- bcryptjs
+- Zod
+- Jest + Supertest
+
+### Frontend
+
+- Next.js 16
+- React 19
+- Bootstrap 5
+- Axios
+
+## Repository Structure
+
+```text
+Book_Store_Capstone/
+├── README.md
+├── db/
+├── frontend/
+│   └── bookstore/
+│       ├── src/
+│       ├── public/
+│       ├── package.json
+│       ├── next.config.mjs
+│       └── README.md
+├── logs/
+├── playground/
+│   ├── prisma/
+│   ├── src/
+│   ├── tests/
+│   ├── .env.example
+│   ├── package.json
+│   ├── openapi.yaml
+│   └── README.md
+└── settings/
+```
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) v18 or higher
-- [PostgreSQL](https://www.postgresql.org/) v14 or higher
-- npm v8 or higher
+Before running the application, make sure the following are installed:
 
----
+- Node.js 18 or newer
+- npm 9 or newer
+- PostgreSQL 14 or newer
+- Git
 
-## Installation
+Optional but useful:
+
+- Prisma Studio
+- Postman for API testing
+- Docker for local database provisioning
+
+## Environment Setup
+
+### 1. Backend environment
+
+Create a `.env` file inside `playground/` based on the example:
 
 ```bash
-npm install
-```
-
----
-
-## Environment Configuration
-
-Copy `.env.example` to `.env` and fill in your values:
-
-```bash
+cd Book_Store_Capstone/playground
 cp .env.example .env
 ```
 
-`.env.example`:
+Example content:
 
-```
+```env
 PORT=3000
-DATABASE_URL="postgresql://username:password@localhost:5432/bookstore"
-JWT_SECRET="change-me-to-a-long-random-secret"
-JWT_REFRESH_SECRET="change-me-to-a-different-long-random-secret"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/bookstore"
+JWT_SECRET="replace-with-a-long-random-string"
+JWT_REFRESH_SECRET="replace-with-a-different-long-random-string"
 JWT_ACCESS_EXPIRES_IN="15m"
 JWT_REFRESH_EXPIRES_IN="7d"
 NODE_ENV="development"
 ```
 
-> ⚠️ Never commit your `.env` file or real credentials to version control.
+Important production notes:
 
----
+- Never commit `.env` files to source control.
+- Use long random secrets for `JWT_SECRET` and `JWT_REFRESH_SECRET`.
+- Use a strong DB password for production deployments.
 
-## Database Setup
+### 2. Frontend environment
 
-### 1. Create the PostgreSQL database
+Create a `.env.local` file in `frontend/bookstore/`:
+
+```bash
+cd Book_Store_Capstone/frontend/bookstore
+copy .env.example .env.local
+```
+
+Example:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3000
+```
+
+If your backend is running on a different port, update the value accordingly.
+
+## Local Development Setup
+
+### 1. Install dependencies
+
+```bash
+cd Book_Store_Capstone/playground
+npm install
+
+cd ../frontend/bookstore
+npm install
+```
+
+### 2. Create the PostgreSQL database
+
+Create a database named `bookstore` in PostgreSQL.
 
 ```sql
 CREATE DATABASE bookstore;
 ```
 
-### 2. Run Prisma migrations
+### 3. Generate Prisma client and apply migrations
+
+From the backend directory:
 
 ```bash
+cd Book_Store_Capstone/playground
+npx prisma generate
 npm run db:migrate
 ```
 
-This creates all tables defined in [`prisma/schema.prisma`](prisma/schema.prisma).
-
-### 3. Generate the Prisma client
+If you need to reset the database during local development:
 
 ```bash
-npm run db:generate
+npx prisma migrate reset
 ```
 
 ### 4. Seed the database
@@ -94,160 +179,260 @@ npm run db:generate
 npm run db:seed
 ```
 
-This inserts 10 sample books into the `Product` table.
+This inserts sample book data for local browsing and testing.
 
----
+## Running the Project
 
-## Running the Application
-
-### Development (with auto-reload)
+### Backend
 
 ```bash
+cd Book_Store_Capstone/playground
 npm run dev
 ```
 
-### Production
+The API runs on:
+
+- http://localhost:3000
+
+### Frontend
 
 ```bash
-npm start
+cd Book_Store_Capstone/frontend/bookstore
+npm run dev
 ```
 
-The server starts on the port defined in your `.env` (default: `3000`).
+The frontend runs on:
 
----
+- http://localhost:3000 by default in development unless configured otherwise
+
+> If the frontend and backend are on different ports, make sure `NEXT_PUBLIC_API_URL` matches the backend API URL.
+
+## Production Deployment
+
+### Recommended production setup
+
+Use separate production environments for:
+
+- PostgreSQL database
+- Backend API service
+- Frontend Next.js app
+- Environment variables managed by a secrets manager or platform secret store
+
+### Backend production run
+
+```bash
+cd Book_Store_Capstone/playground
+npm install --production
+npm run db:generate
+npm run db:migrate:prod
+NODE_ENV=production npm start
+```
+
+### Frontend production build
+
+```bash
+cd Book_Store_Capstone/frontend/bookstore
+npm install
+npm run build
+npm run start
+```
+
+For production hosting, the frontend should usually be deployed on a managed platform such as Vercel, and the backend should be deployed on a Node-compatible service such as Render, Railway, Azure App Service, or a VM/container host.
+
+## Authentication Model
+
+The backend issues two JWT tokens:
+
+- access token: short-lived, used for protected API requests
+- refresh token: long-lived, used to mint a new access token
+
+### Token behavior
+
+- Access token is sent in the `Authorization` header as:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+- Refresh tokens are rotated on use to improve security.
+- Refresh tokens are stored in the database for validation and revocation.
+
+## Main API Endpoints
+
+### Public endpoints
+
+| Method | Endpoint             | Purpose                   |
+| ------ | -------------------- | ------------------------- |
+| GET    | `/api/health`        | Health check              |
+| GET    | `/api/home`          | Public featured products  |
+| POST   | `/api/auth/register` | Create a new user         |
+| POST   | `/api/auth/login`    | Log in and receive tokens |
+| POST   | `/api/auth/refresh`  | Rotate refresh token      |
+
+### Protected endpoints
+
+| Method | Endpoint                         | Purpose                      |
+| ------ | -------------------------------- | ---------------------------- |
+| GET    | `/api/products`                  | Browse the product catalogue |
+| GET    | `/api/products/:id`              | Get product details          |
+| GET    | `/api/wishlist`                  | Get wishlist                 |
+| POST   | `/api/wishlist/items`            | Add item to wishlist         |
+| DELETE | `/api/wishlist/items/:productId` | Remove wishlist item         |
+| GET    | `/api/cart`                      | Get current cart             |
+| POST   | `/api/cart/items`                | Add product to cart          |
+| PUT    | `/api/cart/items/:productId`     | Update cart quantity         |
+| DELETE | `/api/cart/items/:productId`     | Remove item from cart        |
+| POST   | `/api/orders`                    | Create an order from cart    |
+| GET    | `/api/orders/:id`                | Fetch an order               |
+| POST   | `/api/payments`                  | Process payment              |
+
+The OpenAPI contract is available in:
+
+- `playground/openapi.yaml`
+
+## Database Schema Highlights
+
+The backend uses Prisma with the following major entities:
+
+- User
+- RefreshToken
+- Product
+- WishlistItem
+- Cart
+- CartItem
+- Order
+- OrderItem
+- Payment
+
+Important data rules:
+
+- Users have unique emails.
+- Each cart is unique per user.
+- Each wishlist item is unique per user/product pair.
+- Order totals are calculated on the server.
+- Payments are tied to a unique order.
 
 ## Testing
 
-Run the full test suite:
+Run the API test suite:
 
 ```bash
+cd Book_Store_Capstone/playground
 npm test
 ```
 
-Tests use Jest and Supertest and run against a real PostgreSQL database. Make sure your `.env` is configured and the database is running before executing tests.
+The project includes integration tests for:
 
-> Tests run sequentially (`--runInBand`) to avoid transaction conflicts.
+- authentication
+- products
+- wishlist
+- cart
+- orders
+- payments
 
-### Test coverage
+## Production Readiness Checklist
 
-| Suite        | What is tested                                                       |
-|--------------|----------------------------------------------------------------------|
-| Auth         | Register, login, token validation, refresh, rotation                 |
-| Home         | Public access, response shape                                        |
-| Products     | Auth required, search, category filter, details, not found           |
-| Wishlist     | Add, duplicate, get, remove, ownership                               |
-| Cart         | Add, update, remove, get, stock validation, ownership                |
-| Orders       | Create, total calculation, stock reduction, cart clearing, get, auth |
-| Payments     | Success, duplicate, wrong owner, invalid method, server-side amount  |
+Before deploying to production, verify the following:
 
----
+- `.env` files are not stored in git
+- strong JWT secrets are configured
+- PostgreSQL is running in a managed, secure environment
+- database migrations are applied in CI/CD or deployment
+- Prisma client is generated during build or deployment
+- app is behind HTTPS
+- CORS is restricted to trusted origins
+- rate limiting and audit logging are added as needed
+- secrets are rotated regularly
+- frontend API base URL points to the correct production backend
+- monitoring and health checks are enabled
 
-## API Documentation
+## Security Considerations
 
-The full OpenAPI 3.x specification is located at:
+This project already implements core security basics, but production systems should extend them with:
 
-```
-openapi.yaml
-```
+- HTTPS enforcement
+- environment-specific secret management
+- strict CORS policies
+- request rate limiting
+- content security headers
+- input sanitization and validation
+- proactive dependency scanning
+- log redaction for sensitive fields
+- token expiry monitoring and rotation audits
 
-You can view it interactively using any OpenAPI viewer. For example:
+## Troubleshooting
 
-- **Swagger UI** — paste the contents of `openapi.yaml` into [editor.swagger.io](https://editor.swagger.io)
-- **VS Code** — install the [OpenAPI (Swagger) Editor](https://marketplace.visualstudio.com/items?itemName=42Crunch.vscode-openapi) extension
+### Database connection errors
 
----
+Check:
 
-## Authentication Flow
+- `DATABASE_URL` is valid
+- PostgreSQL is running
+- database exists
+- credentials are correct
 
-```
-POST /api/auth/register   →  Create account
-POST /api/auth/login      →  Receive { accessToken, refreshToken }
-                               ↓
-                         Use accessToken as:
-                         Authorization: Bearer <accessToken>
-                               ↓
-                     Access protected endpoints
-                               ↓
-              accessToken expires (default: 15 minutes)
-                               ↓
-POST /api/auth/refresh    →  Send { refreshToken }
-                               ↓
-                    Receive new { accessToken, refreshToken }
-```
+### JWT errors
 
----
+Check:
 
-## Main User Flow
+- `JWT_SECRET` and `JWT_REFRESH_SECRET` are set
+- tokens are not expired
+- refresh flow is using the correct token type
 
-```
-GET  /api/home                   →  Browse books (public, no login needed)
-POST /api/auth/register          →  Create account
-POST /api/auth/login             →  Login, receive tokens
+### Frontend API errors
 
-GET  /api/products               →  Browse full catalogue (auth required)
-GET  /api/products/:id           →  View product details
+Check:
 
-POST /api/wishlist/items         →  Save book to wishlist
-POST /api/cart/items             →  Add book to cart
-PUT  /api/cart/items/:productId  →  Update cart quantity
+- `NEXT_PUBLIC_API_URL` is correct
+- backend server is running
+- no CORS issue is blocking requests
 
-POST /api/orders                 →  Create order from cart
-                                    (server calculates total, deducts stock,
-                                     clears cart)
+### Prisma migration issues
 
-POST /api/payments               →  Fake payment
-                                    (order status → CONFIRMED)
+Run:
 
-GET  /api/orders/:id             →  View purchase confirmation
+```bash
+npx prisma migrate status
+npx prisma generate
 ```
 
----
+## Recommended Next Steps
 
-## Available Scripts
+For a real production release, consider implementing:
 
-| Script               | Description                          |
-|----------------------|--------------------------------------|
-| `npm start`          | Start production server              |
-| `npm run dev`        | Start dev server with nodemon        |
-| `npm test`           | Run test suite                       |
-| `npm run db:migrate` | Run Prisma migrations (dev)          |
-| `npm run db:generate`| Generate Prisma client               |
-| `npm run db:seed`    | Seed the database with sample books  |
-| `npm run db:studio`  | Open Prisma Studio (DB GUI)          |
+- admin dashboard for inventory management
+- role-based access control
+- payment gateway integration (Stripe/Razorpay etc.)
+- email verification and password reset
+- shipping and order tracking
+- customer reviews and ratings
+- advanced product search and filtering
+- analytics and reporting
+- CI/CD pipeline with automated tests and deployment checks
 
----
+## Useful Commands Summary
 
-## Project Structure
+### Backend
 
+```bash
+npm install
+npm run dev
+npm start
+npm test
+npm run db:migrate
+npm run db:generate
+npm run db:seed
 ```
-src/
-├── app.js                  # Express app setup and route registration
-├── server.js               # HTTP server entry point
-├── config/
-│   ├── env.js              # Environment variable validation
-│   └── prisma.js           # Prisma client singleton
-├── controllers/            # Route handlers (thin layer)
-├── services/               # Business logic
-├── routes/                 # Express router definitions
-├── middleware/
-│   └── authenticate.js     # JWT access token middleware
-├── utils/
-│   ├── errors.js           # AppError class + global error handler
-│   └── jwt.js              # Token sign/verify helpers
-└── validators/             # Zod schemas for request validation
 
-prisma/
-├── schema.prisma           # Database schema
-└── seed.js                 # Sample data seeder
+### Frontend
 
-tests/
-├── helpers.js              # Shared test utilities
-├── auth.test.js
-├── product.test.js
-├── wishlist.test.js
-├── cart.test.js
-├── order.test.js
-└── payment.test.js
-
-openapi.yaml                # OpenAPI 3.x API specification
+```bash
+npm install
+npm run dev
+npm run build
+npm run start
 ```
+
+## Notes
+
+This project is designed as a complete learning and demonstration bookstore application. It is structured to be extended toward production use, but the deployment layer, infrastructure hardening, and operational controls still need to be customized to your hosting environment, compliance requirements, and business needs.
