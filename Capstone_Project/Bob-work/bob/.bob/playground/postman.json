@@ -1,0 +1,707 @@
+{
+  "info": {
+    "name": "Bookstore API",
+    "_postman_id": "bookstore-api-collection-v1",
+    "description": "Complete Postman collection for the Bookstore Backend API.\n\n**Quick start**\n1. Set the `baseUrl` collection variable (default: `http://localhost:3000`).\n2. Run **Auth / Register** then **Auth / Login** — the login request automatically saves `accessToken` and `refreshToken` as collection variables.\n3. All protected requests use `{{accessToken}}` via the collection-level Bearer auth — no manual copy-paste needed.\n4. Numeric IDs (`{{productId}}`, `{{orderId}}`) are captured automatically by the relevant requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl",      "value": "http://localhost:3000", "type": "string" },
+    { "key": "accessToken",  "value": "", "type": "string" },
+    { "key": "refreshToken", "value": "", "type": "string" },
+    { "key": "productId",    "value": "1",  "type": "string" },
+    { "key": "orderId",      "value": "",  "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Returns server status and current timestamp. No authentication required."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"status\": \"ok\",\n  \"timestamp\": \"2025-01-15T10:00:00.000Z\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane.doe@example.com\",\n  \"password\": \"securepassword123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Register a new user account.\n\n**Validations**\n- `name`: required, 1–100 characters\n- `email`: valid email format\n- `password`: 8–100 characters\n\n**Returns** `201` with the created user object on success, `400` for validation errors, `409` if the email is already registered."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Registration successful\",\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Jane Doe\",\n    \"email\": \"jane.doe@example.com\"\n  }\n}"
+            },
+            {
+              "name": "400 Bad Request — validation",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Bad Request\",\n  \"message\": \"Password must be at least 8 characters\"\n}"
+            },
+            {
+              "name": "409 Conflict — email taken",
+              "status": "Conflict",
+              "code": 409,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Conflict\",\n  \"message\": \"Email already registered\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.accessToken)  pm.collectionVariables.set('accessToken',  json.accessToken);",
+                  "if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jane.doe@example.com\",\n  \"password\": \"securepassword123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Authenticate and receive access + refresh tokens.\n\nThe **Tests** script automatically saves `accessToken` and `refreshToken` as collection variables so every subsequent protected request is pre-authorised."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Jane Doe\",\n    \"email\": \"jane.doe@example.com\"\n  }\n}"
+            },
+            {
+              "name": "401 Unauthorized — wrong credentials",
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Unauthorized\",\n  \"message\": \"Invalid credentials\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.accessToken)  pm.collectionVariables.set('accessToken',  json.accessToken);",
+                  "if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "refresh"]
+            },
+            "description": "Exchange a valid refresh token for a new access + refresh token pair. The old refresh token is revoked.\n\nThe **Tests** script automatically updates the collection variables with the new tokens."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"accessToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}"
+            },
+            {
+              "name": "401 Unauthorized — invalid token",
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Unauthorized\",\n  \"message\": \"Invalid or expired refresh token\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Get Home Products (public)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/home",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "home"]
+            },
+            "description": "Returns a lightweight product listing for the home page. **No authentication required.**\n\nEach item includes: `id`, `title`, `price`, `imageUrl`."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"products\": [\n    {\n      \"id\": 1,\n      \"title\": \"Atomic Habits\",\n      \"price\": \"499.00\",\n      \"imageUrl\": \"/images/atomic-habits.jpg\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"],
+              "query": [
+                { "key": "search",   "value": "",        "disabled": true, "description": "Filter by title (case-insensitive substring match)" },
+                { "key": "category", "value": "Finance", "disabled": true, "description": "Filter by exact category name" }
+              ]
+            },
+            "description": "Returns full product listings. **Requires authentication.**\n\n**Optional query params**\n- `search` — case-insensitive substring match on `title`\n- `category` — exact category filter (e.g. `Finance`, `Self-Help`)\n\nBoth params can be combined."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"products\": [\n    {\n      \"id\": 1,\n      \"title\": \"Atomic Habits\",\n      \"author\": \"James Clear\",\n      \"category\": \"Self-Help\",\n      \"genre\": \"Non-Fiction\",\n      \"description\": \"An easy and proven way to build good habits and break bad ones.\",\n      \"price\": \"499.00\",\n      \"stock\": 50,\n      \"publishedBy\": \"Penguin Random House\",\n      \"language\": \"English\",\n      \"imageUrl\": \"/images/atomic-habits.jpg\",\n      \"rating\": \"4.8\"\n    }\n  ]\n}"
+            },
+            {
+              "name": "401 Unauthorized",
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Unauthorized\",\n  \"message\": \"Access token required\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "List Products — search by title",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products?search=Atomic",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"],
+              "query": [
+                { "key": "search", "value": "Atomic" }
+              ]
+            },
+            "description": "Example: filter products whose title contains \"Atomic\". **Requires authentication.**"
+          },
+          "response": []
+        },
+        {
+          "name": "List Products — filter by category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products?category=Finance",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products"],
+              "query": [
+                { "key": "category", "value": "Finance" }
+              ]
+            },
+            "description": "Example: return only products in the Finance category. **Requires authentication.**"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.product && json.product.id) {",
+                  "  pm.collectionVariables.set('productId', json.product.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "products", "{{productId}}"]
+            },
+            "description": "Fetch a single product by its numeric ID. **Requires authentication.**\n\nThe **Tests** script refreshes the `productId` collection variable on success."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"product\": {\n    \"id\": 1,\n    \"title\": \"Atomic Habits\",\n    \"author\": \"James Clear\",\n    \"category\": \"Self-Help\",\n    \"genre\": \"Non-Fiction\",\n    \"description\": \"An easy and proven way to build good habits and break bad ones.\",\n    \"price\": \"499.00\",\n    \"stock\": 50,\n    \"publishedBy\": \"Penguin Random House\",\n    \"language\": \"English\",\n    \"imageUrl\": \"/images/atomic-habits.jpg\",\n    \"rating\": \"4.8\"\n  }\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Product not found\"\n}"
+            },
+            {
+              "name": "400 Bad Request — invalid ID",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Bad Request\",\n  \"message\": \"Invalid product ID\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cart",
+      "item": [
+        {
+          "name": "Get Cart",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cart"]
+            },
+            "description": "Retrieve the authenticated user's cart including all items and their product details. **Requires authentication.**"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"cart\": {\n    \"id\": 1,\n    \"userId\": 1,\n    \"cartItems\": [\n      {\n        \"id\": 1,\n        \"productId\": 1,\n        \"quantity\": 2,\n        \"product\": {\n          \"id\": 1,\n          \"title\": \"Atomic Habits\",\n          \"price\": \"499.00\",\n          \"imageUrl\": \"/images/atomic-habits.jpg\"\n        }\n      }\n    ]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Add Item to Cart",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": {{productId}},\n  \"quantity\": 2\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cart", "items"]
+            },
+            "description": "Add a product to the authenticated user's cart. **Requires authentication.**\n\n**Body**\n- `productId` (integer, required) — must be a positive integer\n- `quantity` (integer, required) — must be a positive integer\n\nReturns `201` with the new cart item on success. Returns `404` if the product does not exist."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Added to cart\",\n  \"item\": {\n    \"id\": 1,\n    \"cartId\": 1,\n    \"productId\": 1,\n    \"quantity\": 2\n  }\n}"
+            },
+            {
+              "name": "400 Bad Request — validation",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Bad Request\",\n  \"message\": \"quantity must be a positive integer\"\n}"
+            },
+            {
+              "name": "404 Not Found — product missing",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Product not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Cart Item Quantity",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 5\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/items/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cart", "items", "{{productId}}"]
+            },
+            "description": "Update the quantity of an existing cart item identified by `productId`. **Requires authentication.**\n\n**Body**\n- `quantity` (integer, required) — new quantity, must be a positive integer\n\nReturns `404` if the product is not in the user's cart."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Cart updated\",\n  \"item\": {\n    \"id\": 1,\n    \"cartId\": 1,\n    \"productId\": 1,\n    \"quantity\": 5\n  }\n}"
+            },
+            {
+              "name": "404 Not Found — item not in cart",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Item not found in cart\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remove Item from Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/cart/items/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "cart", "items", "{{productId}}"]
+            },
+            "description": "Remove a product from the authenticated user's cart by `productId`. **Requires authentication.**\n\nReturns `404` if the item is not in the cart."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Removed from cart\"\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Item not found in cart\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Wishlist",
+      "item": [
+        {
+          "name": "Get Wishlist",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/wishlist",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "wishlist"]
+            },
+            "description": "Retrieve all wishlist items for the authenticated user. **Requires authentication.**\n\nReturns an empty array when the wishlist is empty."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"wishlist\": [\n    {\n      \"id\": 1,\n      \"userId\": 1,\n      \"productId\": 1,\n      \"createdAt\": \"2025-01-15T10:00:00.000Z\",\n      \"product\": {\n        \"id\": 1,\n        \"title\": \"Atomic Habits\",\n        \"price\": \"499.00\",\n        \"imageUrl\": \"/images/atomic-habits.jpg\"\n      }\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Add Item to Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": {{productId}}\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/wishlist/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "wishlist", "items"]
+            },
+            "description": "Add a product to the authenticated user's wishlist. **Requires authentication.**\n\n**Body**\n- `productId` (integer, required) — must be a positive integer\n\nReturns `409` if the product is already in the wishlist."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Added to wishlist\",\n  \"item\": {\n    \"id\": 1,\n    \"userId\": 1,\n    \"productId\": 1,\n    \"createdAt\": \"2025-01-15T10:00:00.000Z\"\n  }\n}"
+            },
+            {
+              "name": "409 Conflict — already in wishlist",
+              "status": "Conflict",
+              "code": 409,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Conflict\",\n  \"message\": \"Product already in wishlist\"\n}"
+            },
+            {
+              "name": "400 Bad Request — validation",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Bad Request\",\n  \"message\": \"productId must be a positive integer\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remove Item from Wishlist",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/wishlist/items/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "wishlist", "items", "{{productId}}"]
+            },
+            "description": "Remove a product from the authenticated user's wishlist by `productId`. **Requires authentication.**\n\nReturns `404` if the item is not in the wishlist."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Removed from wishlist\"\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Item not found in wishlist\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Create Order (from cart)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.order && json.order.id) {",
+                  "  pm.collectionVariables.set('orderId', json.order.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders"]
+            },
+            "description": "Create an order from the authenticated user's current cart. **Requires authentication.**\n\nNo request body is needed — the order is built automatically from all items currently in the cart.\n\nThe **Tests** script captures the returned `orderId` as a collection variable for use in subsequent payment requests.\n\nReturns `400` if the cart is empty."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Order created successfully\",\n  \"order\": {\n    \"id\": 1,\n    \"userId\": 1,\n    \"totalAmount\": \"998.00\",\n    \"status\": \"PENDING\",\n    \"createdAt\": \"2025-01-15T10:00:00.000Z\",\n    \"orderItems\": [\n      {\n        \"id\": 1,\n        \"orderId\": 1,\n        \"productId\": 1,\n        \"quantity\": 2,\n        \"price\": \"499.00\"\n      }\n    ]\n  }\n}"
+            },
+            {
+              "name": "400 Bad Request — empty cart",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Bad Request\",\n  \"message\": \"Cart is empty\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/{{orderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", "{{orderId}}"]
+            },
+            "description": "Retrieve a specific order by ID. **Requires authentication.**\n\nOnly the order owner can fetch it — returns `404` if the order belongs to another user or does not exist."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"order\": {\n    \"id\": 1,\n    \"userId\": 1,\n    \"totalAmount\": \"998.00\",\n    \"status\": \"CONFIRMED\",\n    \"createdAt\": \"2025-01-15T10:00:00.000Z\",\n    \"orderItems\": [\n      {\n        \"id\": 1,\n        \"productId\": 1,\n        \"quantity\": 2,\n        \"price\": \"499.00\"\n      }\n    ],\n    \"payment\": {\n      \"id\": 1,\n      \"paymentReference\": \"PAY-ABC123\",\n      \"paymentMethod\": \"CARD\",\n      \"amount\": \"998.00\",\n      \"status\": \"SUCCESS\"\n    }\n  }\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Order not found\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Process Payment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderId\": {{orderId}},\n  \"paymentMethod\": \"CARD\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payments"]
+            },
+            "description": "Process a payment for an existing PENDING order. **Requires authentication.**\n\n**Body**\n- `orderId` (integer, required) — must be a positive integer\n- `paymentMethod` (string, required) — one of: `CARD`, `UPI`, `NET_BANKING`\n\nA unique `paymentReference` is generated automatically. Returns `404` if the order does not belong to the authenticated user, `409` if the order was already paid."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"message\": \"Purchase confirmed successfully\",\n  \"orderId\": 1,\n  \"paymentReference\": \"PAY-ABC123XYZ\",\n  \"paymentStatus\": \"SUCCESS\",\n  \"orderStatus\": \"CONFIRMED\",\n  \"paymentId\": 1,\n  \"amount\": \"998.00\",\n  \"paymentMethod\": \"CARD\"\n}"
+            },
+            {
+              "name": "400 Bad Request — invalid paymentMethod",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Bad Request\",\n  \"message\": \"paymentMethod must be one of: CARD, UPI, NET_BANKING\"\n}"
+            },
+            {
+              "name": "400 Bad Request — invalid orderId",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Bad Request\",\n  \"message\": \"orderId must be a positive integer\"\n}"
+            },
+            {
+              "name": "404 Not Found — order not found",
+              "status": "Not Found",
+              "code": 404,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Not Found\",\n  \"message\": \"Order not found\"\n}"
+            },
+            {
+              "name": "409 Conflict — already paid",
+              "status": "Conflict",
+              "code": 409,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"error\": \"Conflict\",\n  \"message\": \"Order already paid\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
