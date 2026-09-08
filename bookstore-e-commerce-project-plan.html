@@ -1,0 +1,498 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bookstore E-Commerce — Project Plan</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; font-size: 14px; line-height: 1.65; color: #1f2328; background: #ffffff; }
+  .page { max-width: 760px; margin: 0 auto; padding: 40px 24px 60px; }
+
+  /* ── Header ── */
+  .doc-header { border-bottom: 3px solid #1a1a2e; padding-bottom: 20px; margin-bottom: 32px; }
+  .doc-header h1 { font-size: 1.75rem; font-weight: 800; color: #1a1a2e; margin-bottom: 4px; }
+  .doc-header .subtitle { color: #57606a; font-size: 0.92rem; }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+  .badge-blue  { background: #dbeafe; color: #1e40af; }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-purple{ background: #ede9fe; color: #6b21a8; }
+  .badge-red   { background: #fee2e2; color: #991b1b; }
+  .badge-gray  { background: #f1f5f9; color: #475569; }
+
+  /* ── Sections ── */
+  h2 { font-size: 1.15rem; font-weight: 700; color: #1a1a2e; margin: 36px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #e5e7eb; }
+  h3 { font-size: 0.97rem; font-weight: 700; color: #1f2328; margin: 20px 0 8px; }
+  p  { margin-bottom: 10px; color: #374151; }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 0.87rem; }
+  th { background: #1a1a2e; color: #fff; text-align: left; padding: 8px 12px; font-weight: 600; }
+  td { padding: 7px 12px; border-bottom: 1px solid #e5e7eb; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8f9fb; }
+  td code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 0.82rem; color: #c0392b; }
+
+  /* ── Journey grid ── */
+  .journey-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 12px 0 20px; }
+  .journey-col { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+  .journey-col-header { padding: 8px 12px; font-weight: 700; font-size: 0.85rem; color: #fff; }
+  .col-home   .journey-col-header { background: #3b82d4; }
+  .col-cat    .journey-col-header { background: #7c5cd8; }
+  .col-pay    .journey-col-header { background: #e94560; }
+  .journey-item { display: flex; gap: 8px; padding: 7px 12px; border-bottom: 1px solid #f0f0f0; font-size: 0.83rem; }
+  .journey-item:last-child { border-bottom: none; }
+  .step-num { background: #f1f5f9; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; flex-shrink: 0; color: #475569; }
+  .step-highlight { background: #fef08a; border-radius: 3px; padding: 0 3px; }
+
+  /* ── Architecture flow ── */
+  .arch-flow { background: #f8f9fb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; margin: 12px 0 20px; }
+  .flow-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; flex-wrap: wrap; }
+  .flow-box { background: #fff; border: 1.5px solid #e5e7eb; border-radius: 6px; padding: 5px 12px; font-size: 0.82rem; font-weight: 600; white-space: nowrap; }
+  .flow-box.actor  { border-color: #3b82d4; color: #1e40af; }
+  .flow-box.system { border-color: #7c5cd8; color: #6b21a8; }
+  .flow-box.data   { border-color: #e94560; color: #9b1b2f; }
+  .flow-arrow { color: #9ca3af; font-size: 1.1rem; }
+  .flow-divider { border: none; border-top: 1px dashed #d1d5db; margin: 10px 0; }
+
+  /* ── Phase timeline ── */
+  .phase { display: flex; gap: 14px; margin: 10px 0; }
+  .phase-num { background: #1a1a2e; color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.82rem; flex-shrink: 0; margin-top: 2px; }
+  .phase-body h4 { font-size: 0.92rem; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+  .phase-body ul { padding-left: 16px; margin: 0; }
+  .phase-body li { font-size: 0.85rem; color: #374151; margin-bottom: 2px; }
+
+  /* ── API surface ── */
+  .api-group { margin-bottom: 16px; }
+  .api-group-title { font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #57606a; margin-bottom: 6px; }
+  .api-row { display: flex; gap: 8px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid #f0f2f5; font-size: 0.84rem; }
+  .api-row:last-child { border-bottom: none; }
+  .method { font-weight: 700; font-size: 0.78rem; padding: 2px 7px; border-radius: 4px; min-width: 52px; text-align: center; }
+  .get    { background: #dcfce7; color: #166534; }
+  .post   { background: #dbeafe; color: #1e40af; }
+  .put    { background: #fef9c3; color: #854d0e; }
+  .delete { background: #fee2e2; color: #991b1b; }
+  .endpoint { font-family: monospace; color: #1f2328; }
+  .auth-badge { margin-left: auto; font-size: 0.73rem; padding: 1px 7px; border-radius: 10px; }
+  .auth-req { background: #ede9fe; color: #6b21a8; }
+  .auth-pub { background: #f1f5f9; color: #475569; }
+
+  /* ── Data model ── */
+  .model-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+  .model-card { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+  .model-card-title { background: #1a1a2e; color: #fff; padding: 6px 12px; font-size: 0.82rem; font-weight: 700; }
+  .model-card-body { padding: 8px 12px; font-size: 0.8rem; color: #374151; }
+  .model-card-body div { padding: 2px 0; border-bottom: 1px solid #f5f5f5; }
+  .model-card-body div:last-child { border-bottom: none; }
+  .field-type { color: #7c5cd8; margin-left: 6px; font-style: italic; }
+
+  /* ── Gap analysis ── */
+  .gap-item { display: flex; gap: 10px; padding: 8px 12px; border-left: 3px solid #e5e7eb; margin: 6px 0; border-radius: 0 6px 6px 0; background: #f8f9fb; font-size: 0.85rem; }
+  .gap-item.gap-new  { border-color: #3b82d4; }
+  .gap-item.gap-ext  { border-color: #f59e0b; }
+  .gap-item.gap-done { border-color: #22c55e; }
+  .gap-label { font-weight: 700; min-width: 55px; }
+  .gap-new  .gap-label { color: #1e40af; }
+  .gap-ext  .gap-label { color: #92400e; }
+  .gap-done .gap-label { color: #166534; }
+
+  /* ── Footer ── */
+  .doc-footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #e5e7eb; text-align: center; font-size: 12px; color: #9ca3af; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  
+  <div class="doc-header">
+    <h1>📚 BookStore E-Commerce — Project Plan</h1>
+    <p class="subtitle">Architecture, tech stack, customer journeys, data models, API surface &amp; phased delivery</p>
+    <div class="badge-row">
+      <span class="badge badge-blue">Next.js 16 · React 19</span>
+      <span class="badge badge-green">Node.js · Express 4</span>
+      <span class="badge badge-purple">Prisma 5 · PostgreSQL</span>
+      <span class="badge badge-red">JWT Auth</span>
+      <span class="badge badge-gray">Tailwind CSS · Bootstrap 5</span>
+    </div>
+  </div>
+
+  
+  <h2>1. Use Case Overview</h2>
+  <p>An online bookstore where a registered customer can browse a catalogue, manage a wishlist and cart, place an order and confirm payment. Three distinct journeys map to the feature set.</p>
+
+  <div class="journey-grid">
+    <div class="journey-col col-home">
+      <div class="journey-col-header">🏠 E-Store Home</div>
+      <div class="journey-item"><span class="step-num">1</span><span>Login / Registration &amp; User Authentication</span></div>
+      <div class="journey-item"><span class="step-num">2</span><span><span class="step-highlight">Order History with Buy-Again</span> &amp; <span class="step-highlight">Recommendations from Order History</span></span></div>
+      <div class="journey-item"><span class="step-num">3</span><span>Access product catalogue per category</span></div>
+    </div>
+    <div class="journey-col col-cat">
+      <div class="journey-col-header">📖 Catalogue</div>
+      <div class="journey-item"><span class="step-num">5</span><span>Select category of products</span></div>
+      <div class="journey-item"><span class="step-num">6</span><span>Browse brands / publishers</span></div>
+      <div class="journey-item"><span class="step-num">7</span><span><span class="step-highlight">Product tagged with tentative delivery date</span> · <span class="step-highlight">Related products appear</span></span></div>
+      <div class="journey-item"><span class="step-num">8</span><span>Add product(s) to basket / cart</span></div>
+    </div>
+    <div class="journey-col col-pay">
+      <div class="journey-col-header">💳 Payment &amp; Confirmation</div>
+      <div class="journey-item"><span class="step-num">9</span><span>Select delivery address</span></div>
+      <div class="journey-item"><span class="step-num">10</span><span>Initiate payment · Redeem gift points</span></div>
+      <div class="journey-item"><span class="step-num">11</span><span>Payment confirmation</span></div>
+      <div class="journey-item"><span class="step-num">12</span><span>Purchase confirmed · <span class="step-highlight">Cancel order within 48 hrs</span></span></div>
+    </div>
+  </div>
+  <p style="font-size:0.82rem;color:#57606a"><strong>Highlighted items</strong> are future-phase enhancements not yet in the current backend.</p>
+
+  
+  <h2>2. System Architecture</h2>
+  <p>Three-tier architecture: browser client ↔ REST API server ↔ PostgreSQL database. No SSR data fetching — all data flows through client-side Axios calls to the Express API.</p>
+
+  <div class="arch-flow">
+    <div class="flow-row">
+      <span class="flow-box actor">Registered User</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-box system">User Login (JWT)</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-box system">Home Page</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-box system">Browse / Catalogue</span>
+    </div>
+    <hr class="flow-divider" />
+    <div class="flow-row">
+      <span class="flow-box system">Browse / Catalogue</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-box system">Add to Cart</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-box system">Order</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-box system">Payment Processing</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-box data">Shipment</span>
+    </div>
+    <hr class="flow-divider" />
+    <div class="flow-row">
+      <span class="flow-box system">Member (Auth)</span>
+      <span class="flow-arrow">·</span>
+      <span class="flow-box system">Store / Catalog</span>
+      <span class="flow-arrow">·</span>
+      <span class="flow-box data">Order</span>
+      <span class="flow-arrow">·</span>
+      <span class="flow-box data">Payment</span>
+      <span class="flow-arrow">·</span>
+      <span class="flow-box data">Shipping (future)</span>
+    </div>
+  </div>
+
+  <table>
+    <tr><th>Layer</th><th>Technology</th><th>Role</th></tr>
+    <tr><td>Frontend</td><td>Next.js 16.3 · React 19 · Tailwind CSS v4 · Bootstrap 5.3 · Axios 1.20</td><td>Client-side SPA via App Router. All pages are client components. Auth state via React Context.</td></tr>
+    <tr><td>API Gateway</td><td>Express 4.21 · Node.js</td><td>RESTful JSON API. JWT middleware guards protected routes. Zod validates all inputs.</td></tr>
+    <tr><td>ORM</td><td>Prisma 5.22 (prisma-client-js)</td><td>Type-safe DB access. Schema-first migrations. Seed script for product data.</td></tr>
+    <tr><td>Database</td><td>PostgreSQL (public schema)</td><td>Persistent storage for users, products, cart, wishlist, orders, payments, refresh tokens.</td></tr>
+    <tr><td>Auth</td><td>bcryptjs · jsonwebtoken</td><td>Password hashing (10 rounds). Access token (15 min JWT). Refresh token (7 days, stored in DB, rotated on use).</td></tr>
+    <tr><td>Testing</td><td>Jest 29 · Supertest 7</td><td>Backend integration tests (67 tests, all passing).</td></tr>
+  </table>
+
+  
+  <h2>3. Confirmed Tech Stack</h2>
+
+  <h3>Frontend — <code>Capstone_Project/…/frontend/bookstore</code></h3>
+  <table>
+    <tr><th>Package</th><th>Version</th><th>Purpose</th></tr>
+    <tr><td>next</td><td>16.3.4</td><td>App Router, file-based routing, SSG/SSR</td></tr>
+    <tr><td>react / react-dom</td><td>19.2.8</td><td>UI rendering, hooks, Context</td></tr>
+    <tr><td>axios</td><td>^1.20.0</td><td>HTTP client — two instances (public / secure)</td></tr>
+    <tr><td>bootstrap</td><td>^5.3.8</td><td>Layout grid, utility classes, form controls</td></tr>
+    <tr><td>tailwindcss</td><td>^4</td><td>Utility-first custom styling</td></tr>
+    <tr><td>babel-plugin-react-compiler</td><td>1.0.0</td><td>React Compiler optimisation</td></tr>
+    <tr><td>eslint + eslint-config-next</td><td>^9 / 16.3.4</td><td>Linting</td></tr>
+  </table>
+
+  <h3>Backend — <code>Capstone_Project/…/playground</code></h3>
+  <table>
+    <tr><th>Package</th><th>Version</th><th>Purpose</th></tr>
+    <tr><td>express</td><td>^4.21.1</td><td>HTTP server, routing, middleware</td></tr>
+    <tr><td>@prisma/client</td><td>^5.22.0</td><td>ORM query client</td></tr>
+    <tr><td>bcryptjs</td><td>^2.4.3</td><td>Password hashing</td></tr>
+    <tr><td>jsonwebtoken</td><td>^9.0.2</td><td>JWT sign &amp; verify</td></tr>
+    <tr><td>zod</td><td>^3.23.8</td><td>Schema validation on all inputs</td></tr>
+    <tr><td>cors / dotenv</td><td>^2.8.5 / ^16.4.5</td><td>CORS headers, environment config</td></tr>
+    <tr><td>jest + supertest</td><td>^29.7.0 / ^7.0.0</td><td>Integration test suite</td></tr>
+    <tr><td>nodemon</td><td>^3.1.7</td><td>Dev server auto-reload</td></tr>
+  </table>
+
+  
+  <h2>4. Data Model (Prisma Schema)</h2>
+  <div class="model-grid">
+    <div class="model-card">
+      <div class="model-card-title">User</div>
+      <div class="model-card-body">
+        <div>id <span class="field-type">Int PK autoincrement</span></div>
+        <div>name <span class="field-type">String</span></div>
+        <div>email <span class="field-type">String unique</span></div>
+        <div>passwordHash <span class="field-type">String</span></div>
+        <div>createdAt / updatedAt <span class="field-type">DateTime</span></div>
+        <div>→ refreshTokens, wishlistItems, cart, orders</div>
+      </div>
+    </div>
+    <div class="model-card">
+      <div class="model-card-title">Product</div>
+      <div class="model-card-body">
+        <div>id <span class="field-type">Int PK</span></div>
+        <div>title, author, category, genre <span class="field-type">String</span></div>
+        <div>description, publishedBy, language <span class="field-type">String</span></div>
+        <div>price <span class="field-type">Decimal(10,2)</span></div>
+        <div>stock <span class="field-type">Int</span></div>
+        <div>imageUrl <span class="field-type">String</span></div>
+        <div>rating <span class="field-type">Decimal(3,1)</span></div>
+      </div>
+    </div>
+    <div class="model-card">
+      <div class="model-card-title">Cart + CartItem</div>
+      <div class="model-card-body">
+        <div>Cart: id, userId unique, timestamps</div>
+        <div>CartItem: id, cartId, productId, quantity</div>
+        <div>Unique constraint: (cartId, productId)</div>
+        <div>Cascade delete on cart/product removal</div>
+      </div>
+    </div>
+    <div class="model-card">
+      <div class="model-card-title">Order + OrderItem</div>
+      <div class="model-card-body">
+        <div>Order: id, userId, totalAmount, status</div>
+        <div>status: PENDING | CONFIRMED | CANCELLED</div>
+        <div>OrderItem: orderId, productId, quantity, price</div>
+        <div>price = purchase-time snapshot (immutable)</div>
+      </div>
+    </div>
+    <div class="model-card">
+      <div class="model-card-title">Payment</div>
+      <div class="model-card-body">
+        <div>orderId unique FK</div>
+        <div>paymentReference String unique</div>
+        <div>paymentMethod: CARD | UPI | NET_BANKING</div>
+        <div>status: PENDING | SUCCESS | FAILED</div>
+        <div>amount Decimal(10,2)</div>
+      </div>
+    </div>
+    <div class="model-card">
+      <div class="model-card-title">WishlistItem · RefreshToken</div>
+      <div class="model-card-body">
+        <div>WishlistItem: userId, productId</div>
+        <div>Unique: (userId, productId)</div>
+        <div>RefreshToken: token unique, expiresAt, revokedAt</div>
+        <div>Rotation: old token revoked on refresh</div>
+      </div>
+    </div>
+  </div>
+
+  
+  <h2>5. REST API Surface</h2>
+
+  <div class="api-group">
+    <div class="api-group-title">Health</div>
+    <div class="api-row"><span class="method get">GET</span><span class="endpoint">/api/health</span><span class="auth-badge auth-pub">Public</span></div>
+  </div>
+
+  <div class="api-group">
+    <div class="api-group-title">Auth</div>
+    <div class="api-row"><span class="method post">POST</span><span class="endpoint">/api/auth/register</span><span class="auth-badge auth-pub">Public</span></div>
+    <div class="api-row"><span class="method post">POST</span><span class="endpoint">/api/auth/login</span><span class="auth-badge auth-pub">Public</span></div>
+    <div class="api-row"><span class="method post">POST</span><span class="endpoint">/api/auth/refresh</span><span class="auth-badge auth-pub">Public</span></div>
+  </div>
+
+  <div class="api-group">
+    <div class="api-group-title">Products</div>
+    <div class="api-row"><span class="method get">GET</span><span class="endpoint">/api/home</span><span class="auth-badge auth-pub">Public</span></div>
+    <div class="api-row"><span class="method get">GET</span><span class="endpoint">/api/products?search=&amp;category=</span><span class="auth-badge auth-req">Bearer</span></div>
+    <div class="api-row"><span class="method get">GET</span><span class="endpoint">/api/products/:id</span><span class="auth-badge auth-req">Bearer</span></div>
+  </div>
+
+  <div class="api-group">
+    <div class="api-group-title">Cart</div>
+    <div class="api-row"><span class="method get">GET</span><span class="endpoint">/api/cart</span><span class="auth-badge auth-req">Bearer</span></div>
+    <div class="api-row"><span class="method post">POST</span><span class="endpoint">/api/cart/items</span><span class="auth-badge auth-req">Bearer</span></div>
+    <div class="api-row"><span class="method put">PUT</span><span class="endpoint">/api/cart/items/:productId</span><span class="auth-badge auth-req">Bearer</span></div>
+    <div class="api-row"><span class="method delete">DEL</span><span class="endpoint">/api/cart/items/:productId</span><span class="auth-badge auth-req">Bearer</span></div>
+  </div>
+
+  <div class="api-group">
+    <div class="api-group-title">Wishlist</div>
+    <div class="api-row"><span class="method get">GET</span><span class="endpoint">/api/wishlist</span><span class="auth-badge auth-req">Bearer</span></div>
+    <div class="api-row"><span class="method post">POST</span><span class="endpoint">/api/wishlist/items</span><span class="auth-badge auth-req">Bearer</span></div>
+    <div class="api-row"><span class="method delete">DEL</span><span class="endpoint">/api/wishlist/items/:productId</span><span class="auth-badge auth-req">Bearer</span></div>
+  </div>
+
+  <div class="api-group">
+    <div class="api-group-title">Orders</div>
+    <div class="api-row"><span class="method post">POST</span><span class="endpoint">/api/orders</span><span class="auth-badge auth-req">Bearer</span></div>
+    <div class="api-row"><span class="method get">GET</span><span class="endpoint">/api/orders/:id</span><span class="auth-badge auth-req">Bearer</span></div>
+  </div>
+
+  <div class="api-group">
+    <div class="api-group-title">Payments</div>
+    <div class="api-row"><span class="method post">POST</span><span class="endpoint">/api/payments</span><span class="auth-badge auth-req">Bearer</span></div>
+  </div>
+
+  
+  <h2>6. Authentication Architecture</h2>
+  <table>
+    <tr><th>Token</th><th>Storage</th><th>Lifetime</th><th>Mechanism</th></tr>
+    <tr><td>Access Token (JWT)</td><td><code>localStorage</code> key: <code>bookstore_access_token</code></td><td>15 minutes</td><td>Attached as <code>Authorization: Bearer …</code> by axiosSecure request interceptor</td></tr>
+    <tr><td>Refresh Token (JWT)</td><td>Browser cookie <code>bookstore_refresh_token</code> (JS-readable, SameSite=Strict, 7 days)</td><td>7 days (rotated)</td><td>Read from cookie, sent in request body to <code>POST /api/auth/refresh</code>; old token revoked in DB</td></tr>
+  </table>
+  <p>On 401 response: axiosSecure intercepts → reads refresh token from cookie → calls refresh endpoint → stores new access token → retries original request. On refresh failure → clear both tokens → redirect to <code>/login</code>.</p>
+
+  
+  <h2>7. Frontend Route Map</h2>
+  <table>
+    <tr><th>Route</th><th>Access</th><th>Page</th></tr>
+    <tr><td><code>/</code></td><td>Public</td><td>Home — hero, featured books (GET /api/home), Browse CTA</td></tr>
+    <tr><td><code>/login</code></td><td>Public</td><td>Login form → stores tokens → redirect to /catalogue</td></tr>
+    <tr><td><code>/register</code></td><td>Public</td><td>Registration form with client + server validation</td></tr>
+    <tr><td><code>/catalogue</code></td><td>Protected</td><td>Product grid, search input, category filter pills</td></tr>
+    <tr><td><code>/products/[productId]</code></td><td>Protected</td><td>Full product detail — all fields, ⭐ rating, Add to Cart, Wishlist toggle</td></tr>
+    <tr><td><code>/cart</code></td><td>Protected</td><td>Cart items, quantity controls, order summary, Checkout CTA</td></tr>
+    <tr><td><code>/wishlist</code></td><td>Protected</td><td>Saved items, Move to Cart, Remove</td></tr>
+    <tr><td><code>/checkout</code></td><td>Protected</td><td>Order summary from cart → POST /api/orders → navigate to /payment</td></tr>
+    <tr><td><code>/payment</code></td><td>Protected</td><td>Payment method radio (CARD / UPI / NET_BANKING) → POST /api/payments</td></tr>
+    <tr><td><code>/orders/[orderId]</code></td><td>Protected</td><td>Order confirmation — ID, status, items, purchase-time prices, payment reference</td></tr>
+  </table>
+
+  
+  <h2>8. Frontend File Structure</h2>
+  <table>
+    <tr><th>Path</th><th>Purpose</th></tr>
+    <tr><td><code>src/context/AuthContext.js</code></td><td>AuthProvider, useAuth hook, token helpers (getAccessToken, setAccessToken, getRefreshToken, setRefreshToken), useEffect hydration on mount</td></tr>
+    <tr><td><code>src/services/axiosPublic.js</code></td><td>Axios instance for public endpoints (base URL from NEXT_PUBLIC_API_URL)</td></tr>
+    <tr><td><code>src/services/axiosSecure.js</code></td><td>Axios instance for protected endpoints; request interceptor (attach Bearer); response interceptor (401 → refresh → retry)</td></tr>
+    <tr><td><code>src/services/authService.js</code></td><td>register(), login(), refresh()</td></tr>
+    <tr><td><code>src/services/productService.js</code></td><td>getHomeProducts(), getProducts(params), getProductById(id)</td></tr>
+    <tr><td><code>src/services/cartService.js</code></td><td>getCart(), addItem(), updateItem(), removeItem()</td></tr>
+    <tr><td><code>src/services/wishlistService.js</code></td><td>getWishlist(), addItem(), removeItem()</td></tr>
+    <tr><td><code>src/services/orderService.js</code></td><td>createOrder(), getOrder(id)</td></tr>
+    <tr><td><code>src/services/paymentService.js</code></td><td>processPayment(orderId, paymentMethod)</td></tr>
+    <tr><td><code>src/components/Navbar.jsx</code></td><td>Responsive navbar; guest vs authenticated links; waits for loading before rendering auth links</td></tr>
+    <tr><td><code>src/components/ProtectedRoute.jsx</code></td><td>Redirects to /login if not authenticated after hydration resolves</td></tr>
+    <tr><td><code>src/components/BookCard.jsx</code></td><td>Product card — image, title, author, price, rating, Add to Cart, Wishlist toggle</td></tr>
+    <tr><td><code>src/components/Loading / EmptyState / ErrorMessage / Toast</code></td><td>Shared UI primitives</td></tr>
+  </table>
+
+  
+  <h2>9. Gap Analysis — Current vs Use Case Diagram</h2>
+  <p>Items marked <strong>Done</strong> are fully implemented. <strong>Extend</strong> means partially in place. <strong>New</strong> means not yet built.</p>
+
+  <div class="gap-item gap-done"><span class="gap-label">✅ Done</span><span>User registration, login, logout, JWT access + refresh token rotation</span></div>
+  <div class="gap-item gap-done"><span class="gap-label">✅ Done</span><span>Product catalogue with search and category filter</span></div>
+  <div class="gap-item gap-done"><span class="gap-label">✅ Done</span><span>Product detail page with all fields and static rating</span></div>
+  <div class="gap-item gap-done"><span class="gap-label">✅ Done</span><span>Cart — add, update quantity, remove, order summary</span></div>
+  <div class="gap-item gap-done"><span class="gap-label">✅ Done</span><span>Wishlist — add, remove, move to cart</span></div>
+  <div class="gap-item gap-done"><span class="gap-label">✅ Done</span><span>Checkout → create order from cart → fake payment (CARD / UPI / NET_BANKING)</span></div>
+  <div class="gap-item gap-done"><span class="gap-label">✅ Done</span><span>Order detail page with purchase-time prices and payment reference</span></div>
+  <div class="gap-item gap-ext"><span class="gap-label">🔶 Extend</span><span>Order History page — GET /api/orders route exists but a list-all-orders endpoint is not yet implemented (only GET /api/orders/:id)</span></div>
+  <div class="gap-item gap-new"><span class="gap-label">🆕 New</span><span>Buy-Again feature — requires order history list + re-add-to-cart from past orders</span></div>
+  <div class="gap-item gap-new"><span class="gap-label">🆕 New</span><span>Recommendations based on order history — new backend service + frontend section</span></div>
+  <div class="gap-item gap-new"><span class="gap-label">🆕 New</span><span>Delivery address selection (step 9) — no address model in schema yet</span></div>
+  <div class="gap-item gap-new"><span class="gap-label">🆕 New</span><span>Tentative delivery date on product (step 7) — requires delivery estimate logic</span></div>
+  <div class="gap-item gap-new"><span class="gap-label">🆕 New</span><span>Related products / cross-sell on product page (step 7)</span></div>
+  <div class="gap-item gap-new"><span class="gap-label">🆕 New</span><span>Gift points / redeem coupons (step 10, 12)</span></div>
+  <div class="gap-item gap-new"><span class="gap-label">🆕 New</span><span>Cancel order within 48 hrs (step 12) — CANCELLED status exists in schema; needs cancellation endpoint + UI</span></div>
+  <div class="gap-item gap-new"><span class="gap-label">🆕 New</span><span>Shipping / address model + shipment tracking (architecture diagram)</span></div>
+
+  
+  <h2>10. Phased Delivery Plan</h2>
+
+  <div class="phase">
+    <div class="phase-num">1</div>
+    <div class="phase-body">
+      <h4>Phase 1 — Foundation (Complete ✅)</h4>
+      <ul>
+        <li>Backend: Express API, Prisma schema, all core routes, JWT auth, 67 passing tests</li>
+        <li>Frontend: Next.js App Router, AuthContext, axiosPublic/axiosSecure, all 10 routes, service layer</li>
+        <li>Core flows: Register → Login → Browse → Add to Cart → Checkout → Payment → Order Confirmation</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-num">2</div>
+    <div class="phase-body">
+      <h4>Phase 2 — Order History &amp; Cancel</h4>
+      <ul>
+        <li>Backend: Add <code>GET /api/orders</code> (list all orders for user)</li>
+        <li>Backend: Add <code>PATCH /api/orders/:id/cancel</code> with 48-hr window check</li>
+        <li>Frontend: <code>/orders</code> page — order history list with Buy-Again button</li>
+        <li>Frontend: Cancel Order CTA on order detail page</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-num">3</div>
+    <div class="phase-body">
+      <h4>Phase 3 — Delivery Address</h4>
+      <ul>
+        <li>Backend: Add <code>Address</code> model (userId, line1, city, state, pincode, isDefault)</li>
+        <li>Backend: CRUD endpoints for user addresses</li>
+        <li>Backend: Attach selected addressId to Order on creation</li>
+        <li>Frontend: Address management page + address picker on checkout</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-num">4</div>
+    <div class="phase-body">
+      <h4>Phase 4 — Catalogue Enhancements</h4>
+      <ul>
+        <li>Backend: Add <code>estimatedDeliveryDays</code> field to Product</li>
+        <li>Backend: Related products endpoint (same category, exclude current)</li>
+        <li>Frontend: Delivery date badge on product detail &amp; catalogue cards</li>
+        <li>Frontend: Related books section on product detail page</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-num">5</div>
+    <div class="phase-body">
+      <h4>Phase 5 — Recommendations &amp; Gift Points</h4>
+      <ul>
+        <li>Backend: Recommendation service (most-bought categories from order history)</li>
+        <li>Backend: <code>GiftPoint</code> model, earn on purchase, redeem at checkout</li>
+        <li>Frontend: Recommended for You section on home page and catalogue</li>
+        <li>Frontend: Gift points balance display + redemption at checkout</li>
+      </ul>
+    </div>
+  </div>
+
+  
+  <h2>11. Environment Variables</h2>
+  <table>
+    <tr><th>Variable</th><th>Where</th><th>Value (example)</th></tr>
+    <tr><td><code>NEXT_PUBLIC_API_URL</code></td><td>Frontend <code>.env.local</code></td><td><code>http://localhost:3000</code></td></tr>
+    <tr><td><code>DATABASE_URL</code></td><td>Backend <code>.env</code></td><td><code>postgresql://postgres:postgres@localhost:5432/bookstore</code></td></tr>
+    <tr><td><code>JWT_SECRET</code></td><td>Backend <code>.env</code></td><td>Long random string (min 32 chars)</td></tr>
+    <tr><td><code>JWT_REFRESH_SECRET</code></td><td>Backend <code>.env</code></td><td>Different long random string</td></tr>
+    <tr><td><code>JWT_ACCESS_EXPIRES_IN</code></td><td>Backend <code>.env</code></td><td><code>15m</code></td></tr>
+    <tr><td><code>JWT_REFRESH_EXPIRES_IN</code></td><td>Backend <code>.env</code></td><td><code>7d</code></td></tr>
+    <tr><td><code>PORT</code></td><td>Backend <code>.env</code></td><td><code>3000</code></td></tr>
+  </table>
+
+  
+  <h2>12. Run Commands</h2>
+  <table>
+    <tr><th>Action</th><th>Command</th><th>Directory</th></tr>
+    <tr><td>Start backend (dev)</td><td><code>npm run dev</code></td><td><code>…/playground</code></td></tr>
+    <tr><td>Run migrations</td><td><code>npx prisma migrate deploy</code></td><td><code>…/playground</code></td></tr>
+    <tr><td>Seed database</td><td><code>node prisma/seed.js</code></td><td><code>…/playground</code></td></tr>
+    <tr><td>Run backend tests</td><td><code>npm test</code></td><td><code>…/playground</code></td></tr>
+    <tr><td>Start frontend (dev)</td><td><code>npm run dev</code></td><td><code>…/frontend/bookstore</code></td></tr>
+    <tr><td>Build frontend</td><td><code>npm run build</code></td><td><code>…/frontend/bookstore</code></td></tr>
+  </table>
+
+  <div class="doc-footer">Made with IBM Bob</div>
+</div>
+</body>
+</html>
