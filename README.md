@@ -431,6 +431,9 @@ npm install
 npm run dev
 npm run build
 npm run start
+
+Capstone_Project/Bob-work/bob/frontend/bookstore$ npm run start
+Capstone_Project/Bob-work/bob/playground$ npm run start
 ```
 
 ## Notes
